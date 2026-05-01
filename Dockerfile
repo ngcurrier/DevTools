@@ -2,7 +2,7 @@ FROM debian:stable
 
 # Install X11 apps and basic libraries
 RUN apt-get update && apt-get install -y x11-apps git emacs vim curl gcc g++ gdb valgrind screen \
-    gprof electric-fence fzf exuberant-ctags && \
+    gprof electric-fence fzf exuberant-ctags ping tcpdump strace && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
