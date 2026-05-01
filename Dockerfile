@@ -31,6 +31,21 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 RUN npm install -g @google/gemini-cli
 
+# Install Dakota tools
+# We don't build this because the build process requires far more dependencies to be added
+# and can often take hours depending on the complexity. The bin only works on x86_64 targets
+# but at the moment this isn't an issue as the validation work is not being done on ARM, etc.
+# target.
+RUN <<EOF
+if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
+   wget https://github.com/snl-dakota/dakota/releases/download/v6.19.0/dakota-6.19.0-public-rhel8.Linux.x86_64-cli.tar.gz
+   tar xvf dakota-6.19.0-public-rhel8.Linux.x86_64-cli.tar.gz dakota-6.19.0-public-rhel8.Linux.x86_64-cli
+   mv dakota-6.19.0-public-rhel8.Linux.x86_64-cli /usr/local/bin/dakota
+else
+    echo "Unknown target platform ${TARGETPLATFORM} for Dakota installation."
+fi
+EOF
+
 # Install paraview
 RUN apt-get update && apt-get -y install paraview
 
