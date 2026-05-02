@@ -53,7 +53,8 @@ RUN apt-get update && apt-get install -y \
 # and can often take hours depending on the complexity. 
 RUN wget https://github.com/snl-dakota/dakota/releases/download/v6.19.0/dakota-6.19.0-public-rhel8.Linux.x86_64-cli.tar.gz && \
     tar xvf dakota-6.19.0-public-rhel8.Linux.x86_64-cli.tar.gz dakota-6.19.0-public-rhel8.Linux.x86_64-cli && \
-    mv dakota-6.19.0-public-rhel8.Linux.x86_64-cli /usr/local/bin/dakota
+    mv dakota-6.19.0-public-rhel8.Linux.x86_64-cli /usr/local/bin/dakota && \
+    rm dakota-6.19.0-public-rhel8.Linux.x86_64-cli.tar.gz
 ENV PATH="/usr/local/bin/dakota/bin:${PATH}"
 
 # Add users and switch to them, keep this layer on the end
