@@ -1,8 +1,10 @@
 FROM debian:stable
 
 # Install X11 apps and basic libraries
-RUN apt-get update && apt-get install -y x11-apps git emacs vim curl gcc g++ gdb valgrind screen \
-    binutils electric-fence fzf exuberant-ctags iputils-ping tcpdump strace && \
+RUN apt-get update && apt-get install -y x11-apps git emacs vim curl gcc g++ gfortran \
+    gdb valgrind screen \
+    binutils electric-fence fzf exuberant-ctags iputils-ping tcpdump strace \
+    make cmake && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -31,9 +33,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 RUN npm install -g @google/gemini-cli
 
+
 # Install paraview
 RUN apt-get update && apt-get install -y paraview && \
-    apt-clean && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Install a browser
@@ -41,18 +44,17 @@ RUN apt-get update && apt-get install -y \
     firefox-esr \ 
     libcanberra-gtk3-module \
     libdbus-glib-1-2 \ 
+    xdg-utils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-ENV DISPLAY=:0
 
 # Install Dakota tools
 # We don't build this because the build process requires far more dependencies to be added
 # and can often take hours depending on the complexity. 
 RUN wget https://github.com/snl-dakota/dakota/releases/download/v6.19.0/dakota-6.19.0-public-rhel8.Linux.x86_64-cli.tar.gz && \
     tar xvf dakota-6.19.0-public-rhel8.Linux.x86_64-cli.tar.gz dakota-6.19.0-public-rhel8.Linux.x86_64-cli && \
-    mv dakota-6.19.0-public-rhel8.Linux.x86_64-cli /usr/local/bin/dakota && \
-    rm dakota-6.19.0-public-rhel8.Linux.x86_64-cli.tar.gz
+    mv dakota-6.19.0-public-rhel8.Linux.x86_64-cli /usr/local/bin/dakota
+ENV PATH="/usr/local/bin/dakota/bin:${PATH}"
 
 # Add users and switch to them, keep this layer on the end
 RUN useradd -ms /bin/bash nick
