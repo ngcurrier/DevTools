@@ -20,6 +20,11 @@ RUN apt-get update --fix-missing && \
 # activate conda install
 ENV PATH="/opt/conda/bin:${PATH}"
 
+# install python3 deps
+RUN apt-get install python3-pip &&
+    apt-get clean && \    
+    rm -rf /var/lib/apt/lists/*
+
 #install gemini cli
 # Install dependencies and Node.js from NodeSource
 RUN apt-get update && apt-get install -y \
@@ -32,7 +37,6 @@ RUN apt-get update && apt-get install -y \
     && apt-get update && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 RUN npm install -g @google/gemini-cli
-
 
 # Install paraview
 RUN apt-get update && apt-get install -y paraview && \
@@ -58,10 +62,21 @@ RUN wget https://github.com/snl-dakota/dakota/releases/download/v6.19.0/dakota-6
 ENV PATH="/usr/local/bin/dakota/bin:${PATH}"
 
 # Add users and switch to them, keep this layer on the end
-RUN useradd -ms /bin/bash nick
-USER nick
-WORKDIR /home/nick
+ARG USERNAME=nick
+RUN useradd -ms /bin/bash $USERNAME
+# Add the user to the sudo group and configure passwordless sudo
+RUN usermod -aG sudo $USERNAME \
+    && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+#!!!!!!!!!!!!!!!!! Switch to user    !!!!!!!!!!!!!!!!!!!!!
+USER $USERNAME
+WORKDIR /home/$USERNAME
+
+# Install Google antigravity last since we have to export some things into our user path
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
+RUN echo 'export PATH="/home/$USERNAME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 
 # Set environment variable for display
 ENV DISPLAY=host.docker.internal:0.0
+# Drop into bash prompt
 CMD ["/bin/bash"]
