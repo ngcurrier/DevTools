@@ -8,6 +8,12 @@ RUN apt-get update && apt-get install -y x11-apps git emacs vim curl gcc g++ gfo
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# install python3 deps, this is a separate step intentionally to avoid
+# polluting the base layer with rapidly changing python tools
+RUN apt-get update && apt-get install -y python3-vtk9 && \
+    apt-get clean && \    
+    rm -rf /var/lib/apt/lists/*
+
 # Install dependencies, download, and install Anaconda
 RUN apt-get update --fix-missing && \
     apt-get install -y --no-install-recommends \
@@ -15,15 +21,12 @@ RUN apt-get update --fix-missing && \
     && apt-get clean && rm -rf /var/lib/apt/lists/* && \
     wget --quiet https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh -O ~/anaconda.sh && \
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
+    /opt/conda/bin/conda clean -afy && \
+    find /opt/conda/ -follow -type f -name '*.a' -delete && \
     rm ~/anaconda.sh
 
 # activate conda install
 ENV PATH="/opt/conda/bin:${PATH}"
-
-# install python3 deps
-RUN apt-get install python3-pip &&
-    apt-get clean && \    
-    rm -rf /var/lib/apt/lists/*
 
 #install gemini cli
 # Install dependencies and Node.js from NodeSource
@@ -43,7 +46,7 @@ RUN apt-get update && apt-get install -y paraview && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install a browser
+# Install a browser, this is used for verification of AI agents
 RUN apt-get update && apt-get install -y \
     firefox-esr \ 
     libcanberra-gtk3-module \
@@ -63,6 +66,8 @@ ENV PATH="/usr/local/bin/dakota/bin:${PATH}"
 
 # Add users and switch to them, keep this layer on the end
 ARG USERNAME=nick
+ARG HOMEDIR=/home/$USERNAME
+
 RUN useradd -ms /bin/bash $USERNAME
 # Add the user to the sudo group and configure passwordless sudo
 RUN usermod -aG sudo $USERNAME \
@@ -72,9 +77,10 @@ RUN usermod -aG sudo $USERNAME \
 USER $USERNAME
 WORKDIR /home/$USERNAME
 
+
 # Install Google antigravity last since we have to export some things into our user path
 RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
-RUN echo 'export PATH="/home/$USERNAME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+RUN echo 'export PATH="/home/$USERNAME/.local/bin:$PATH"' >> $HOMEDIR/.bashrc
 
 # Set environment variable for display
 ENV DISPLAY=host.docker.internal:0.0
