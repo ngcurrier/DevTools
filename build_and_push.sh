@@ -9,6 +9,6 @@ VERSION=$1
 IMAGE="my_docker"
 IMAGE_LOCATION="docfreezzzz"
 
-docker build -t $IMAGE:$VERSION
+docker build -t $IMAGE:$VERSION .
 docker push $IMAGE_LOCATION/$IMAGE:$VERSION
 echo "Built and pushed image to: $IMAGE_LOCATION/$IMAGE:$VERSION"
