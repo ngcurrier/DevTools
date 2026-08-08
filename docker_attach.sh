@@ -46,4 +46,4 @@ echo "Attaching to '$chosen_name' ($chosen_id)..."
 
 # Try opening /bin/bash, fall back to /bin/sh if bash isn't available
 #docker exec -it $chosen_name /bin/bash
-docker attach $chosen_name
+echo "Run: docker attach '$chosen_name'"
