@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USER_NAME="nick"
-LOCAL_PATH="C:/Users/nicho/Documents/docker_home_$USER_NAME"
+LOCAL_PATH=$(pwd)
 IMAGE="docfreezzzz/my_docker"
 VERSION="v1.1"
 docker pull $IMAGE:$VERSION
